@@ -1,0 +1,165 @@
+<div class="frontmeter">
+  <div class="frontmeter__card">
+
+    <!-- Formularansicht vor erfolgreicher Übermittlung -->
+    <div ng-if="!c.submitSuccess">
+      <h2 class="frontmeter__title">Zählerstand melden</h2>
+
+      <!-- Kundennummer -->
+      <div class="field">
+        <label for="customer_id">
+          Kundennummer<span class="required-star" aria-hidden="true">*</span>
+        </label>
+        <input id="customer_id"
+               class="meter-input"
+               type="text"
+               ng-model="c.form.customer_id"
+               ng-change="c.markTouched('customer_id')"
+               ng-blur="c.markTouched('customer_id')"
+               ng-class="{'meter-input--error': c.hasFieldError('customer_id')}"
+               autocomplete="off"
+               inputmode="numeric"
+               maxlength="{{ c.customerIdMaxLength }}"
+               required
+               aria-required="true"
+               aria-describedby="customer_id_sr"
+               aria-invalid="{{ c.hasFieldError('customer_id') ? 'true' : 'false' }}">
+        <div id="customer_id_sr" class="sr-only">
+          Kundennummer mit {{ c.customerIdMinLength }} bis {{ c.customerIdMaxLength }} Ziffern.
+        </div>
+      </div>
+
+      <!-- Zählernummer -->
+      <div class="field">
+        <label for="meter_id">
+          Zählernummer<span class="required-star" aria-hidden="true">*</span>
+        </label>
+        <input id="meter_id"
+               class="meter-input"
+               type="text"
+               ng-model="c.form.meter_id"
+               ng-change="c.markTouched('meter_id')"
+               ng-blur="c.markTouched('meter_id')"
+               ng-class="{'meter-input--error': c.hasFieldError('meter_id')}"
+               autocomplete="off"
+               maxlength="{{ c.meterIdMaxLength }}"
+               required
+               aria-required="true"
+               aria-describedby="meter_id_sr"
+               aria-invalid="{{ c.hasFieldError('meter_id') ? 'true' : 'false' }}">
+        <div id="meter_id_sr" class="sr-only">
+          Zählernummer zwischen {{ c.meterIdMinLength }} und {{ c.meterIdMaxLength }} Zeichen. Buchstaben, Ziffern und die Sonderzeichen Bindestrich, Unterstrich, Punkt, Schrägstrich erlaubt.
+        </div>
+      </div>
+
+      <!-- Zählerstand -->
+      <div class="field">
+        <label for="reading_value">
+          Zählerstand<span class="required-star" aria-hidden="true">*</span>
+        </label>
+        <input id="reading_value"
+               class="meter-input"
+               type="text"
+               ng-model="c.form.reading_value"
+               ng-change="c.markTouched('reading_value')"
+               ng-blur="c.markTouched('reading_value')"
+               ng-class="{'meter-input--error': c.hasFieldError('reading_value')}"
+               autocomplete="off"
+               inputmode="numeric"
+               maxlength="{{ c.readingValueMaxDigits }}"
+               required
+               aria-required="true"
+               aria-describedby="reading_value_sr"
+               aria-invalid="{{ c.hasFieldError('reading_value') ? 'true' : 'false' }}">
+        <div id="reading_value_sr" class="sr-only">
+          Zählerstand mit {{ c.readingValueMinDigits }} bis {{ c.readingValueMaxDigits }} Ziffern.
+        </div>
+      </div>
+
+      <!-- Ablesedatum -->
+      <div class="field">
+        <label for="reading_date">
+          Datum<span class="required-star" aria-hidden="true">*</span>
+        </label>
+        <input id="reading_date"
+               class="meter-input"
+               type="date"
+               ng-model="c.form.reading_date"
+               ng-change="c.markTouched('reading_date')"
+               ng-blur="c.markTouched('reading_date')"
+               ng-class="{'meter-input--error': c.hasFieldError('reading_date')}"
+               max="{{ c.today }}"
+               min="{{ c.minDate }}"
+               required
+               aria-required="true"
+               aria-describedby="reading_date_sr"
+               aria-invalid="{{ c.hasFieldError('reading_date') ? 'true' : 'false' }}">
+        <div id="reading_date_sr" class="sr-only">
+          Datum innerhalb des zulässigen Zeitraums auswählen.
+        </div>
+      </div>
+
+      <!-- Aktionsbuttons -->
+      <div class="frontmeter__buttons">
+        <button class="btn btn--primary"
+                type="button"
+                ng-click="c.submit()"
+                ng-disabled="c.busy"
+                aria-disabled="{{ c.busy ? 'true' : 'false' }}">
+          {{ c.busy ? 'Wird übermittelt...' : 'Absenden' }}
+        </button>
+        <button class="btn btn--secondary"
+                type="button"
+                ng-click="c.reset()"
+                ng-disabled="c.busy"
+                aria-disabled="{{ c.busy ? 'true' : 'false' }}">
+          Zurücksetzen
+        </button>
+      </div>
+
+      <!-- Statusbereich -->
+      <div ng-if="c.statusMessage"
+           class="frontmeter__status"
+           role="status"
+           aria-live="polite"
+           ng-class="{
+             'frontmeter__status--ok':  c.statusType === 'ok',
+             'frontmeter__status--err': c.statusType === 'err'
+           }">
+        <div>{{ c.statusMessage }}</div>
+        <div ng-if="c.correlationId">
+          Referenznummer: {{ c.correlationId }}
+        </div>
+      </div>
+
+      <p class="frontmeter__requiredhint">
+        Pflichtfelder sind mit <span class="required-star" aria-hidden="true">*</span> markiert.
+      </p>
+
+      <div class="frontmeter__privacy" role="note" aria-label="Datenschutzhinweis">
+        Die im Formular eingegebenen Daten werden ausschließlich zur Bearbeitung Ihrer
+        Zählerstandsmeldung und zur Durchführung der Abrechnung verarbeitet.
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).
+        Weitere Informationen finden Sie in unseren Datenschutzhinweisen.
+      </div>
+    </div>
+
+    <!-- Erfolgssicht nach erfolgreicher Übermittlung -->
+    <div ng-if="c.submitSuccess" class="frontmeter__success">
+      <div class="frontmeter__status frontmeter__status--ok"
+           role="status"
+           aria-live="polite">
+        {{ c.statusMessage }}
+      </div>
+      <div class="frontmeter__summary">
+        <p><strong>Referenznummer:</strong> {{ c.correlationId }}</p>
+      </div>
+      <div class="frontmeter__buttons">
+        <button class="btn btn--primary" type="button" ng-click="c.reset()">
+          Neue Meldung erfassen
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

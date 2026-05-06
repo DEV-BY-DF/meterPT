@@ -1,0 +1,46 @@
+(function executeRule(current, previous) {
+
+    // =========================================================
+    // Business Rule: Automatische Verarbeitung neuer Staging-Datensätze
+    // Trigger: INSERT auf u_meter_reading_staging mit Status "received"
+    // =========================================================
+
+    // Nur auf echten Inserts gültiger Datensätze ausführen
+    if (!current || !current.isValidRecord() || !current.operation || current.operation() !== "insert") {
+        return;
+    }
+
+    try {
+        // Nur neu eingegangene Datensätze verarbeiten
+        var status = String(current.getValue("u_status") || "");
+        if (status !== "received") {
+            gs.info(
+                "meter_processing_rule skipped: wrong status" +
+                " | sys_id=" + current.getUniqueValue() +
+                " | status=" + status
+            );
+            return;
+        }
+
+        // Fachlogik liegt im Script Include – die Rule ist nur Auslöser
+        var processor = new meter_processing();
+        var result    = processor.processRecord(String(current.getUniqueValue() || ""));
+
+        gs.info(
+            "meter_processing_rule complete" +
+            " | sys_id=" + current.getUniqueValue() +
+            " | ok=" + (result && result.ok) +
+            " | message=" + ((result && result.message) || "") +
+            " | count=" + ((result && result.count) || 0)
+        );
+
+    } catch (e) {
+        gs.error(
+            "meter_processing_rule ERROR" +
+            " | sys_id=" + current.getUniqueValue() +
+            " | error=" + e +
+            " | stack=" + e.stack
+        );
+    }
+
+})(current, previous);
